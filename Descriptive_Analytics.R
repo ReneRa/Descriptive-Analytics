@@ -9,9 +9,9 @@ measuremodel<- matrix(c("Image", "IMAG1","Image","IMAG2","Image","IMAG3","Image"
 colnames(strucmodel)<-c("Source","Target")
 
 
+PLS_Prep<-function(data,strucmodel,measuremodel){
 latent <- unique(as.vector(strucmodel))
 manifest <-sort(setdiff(as.vector(measuremodel),latent))
-
 # Initialize Outer Weight
 Init<- function(model){
   measuremod <- measuremodel
@@ -41,14 +41,36 @@ InnerW <- function(structuremodel) {
   return(Innermatrix)
 }
 
+block <- function(latent, manifest, measuremodel) {
+  ln<-length(latent)
+  colnames(measuremodel) <- NULL
+  blocks<- list()
+  
+  for(i in 1:ln) {
+    blocks[[i]] <- measuremodel[c(which(measuremodel[,1]==latent[i],which(measuremodel[,2]==latent[i])))]
+    blocks[[i]] <- append(blocks[[i]], measuremodel[c(which(measuremodel[,2]==latent[i], which(measuremodel[,1]==latent[i])))])
+    blocks[[i]] <- sort(blocks[[i]][blocks[[i]] %in% manifest])
+  
+    #determine the mode ("A"=reflective, "B"=Formative)  
+    if(all(blocks[[i]] %in% measuremodel[,2])) {
+      attr(blocks[[i]], "mode") <-"A"
+    }
+    else if(all(blocks[[i]] %in% measuremodel[,1])){
+      attr(blocks[[i]], "mode") <-"B"
+    }
+    else stop("A block must bei either formative or reflective, not both")
+  }
+  names(blocks) <- latent
+  return(blocks)
+}
 
 result <- list()
 result$latent <- latent
 result$manifest <- manifest
 result$strucmod <- strucmodel
 result$measuremod <- measuremodel
-# TODO Result$blocks has to be added 
-result$InnerMatrix <- InnerW()
+result$blocks <- blocks <-block(latent, manifest, measuremodel) 
+result$InnerMatrix <- InnerW(strucmod)
 result$OuterMatrix <-Init(model=Result)
 return(result)
-
+}
