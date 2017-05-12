@@ -2,19 +2,53 @@
 rm(list = ls())
 data = read.csv("bank.csv", header=TRUE )
 
-# Should not be used
-Block_Image <- as.data.frame(data[2:6])
-Block_Expectation <-as.data.frame(data[7:9])
-Block_Qualification<-as.data.frame(data[10:18])
-Block_Value<-as.data.frame(data[19:20])
-Block_Satisfaction<-as.data.frame(data[21:23])
-Block_Loyalty<-as.data.frame(data[24:25])
-
-strucmodel <- matrix(c("Image","Expectations", "Image","Loyalty","Image","Satisfaction","Expectation","Satisfaction","Expectation","Quality","Expectation","Value","Quality","Value","Quality","Satisfaction","Value","Satisfaction","Satisfaction","Loyalty"),ncol=2, byrow = T)
+#Structural and Measurement Model
+strucmodel <- matrix(c("Image","Expectation", "Image","Loyalty","Image","Satisfaction","Expectation","Satisfaction","Expectation","Quality","Expectation","Value","Quality","Value","Quality","Satisfaction","Value","Satisfaction","Satisfaction","Loyalty"),ncol=2, byrow = T)
 colnames(strucmodel)<-c("Source","Target")
 measuremodel<- matrix(c("Image", "IMAG1","Image","IMAG2","Image","IMAG3","Image","IMAG4","Image","IMAG5","Expectation","EXPE1","Expectation","EXPE2","Expectation","EXPE3","Quality","QUAL1","Quality","QUAL2","Quality","QUAL3","Quality","QUAL4","Quality","QUAL5","Quality","QUAL6","Quality","QUAL7","Quality","QUAL8","Quality","QUAL9","Value","VALU1","Value","VALU2","Satisfaction","SATI1","Satisfaction","SATI2","Satisfaction","SATI3","Loyalty","LOYA1","Loyalty","LOYA2"),ncol=2,byrow = T)
 colnames(strucmodel)<-c("Source","Target")
 
-#my.plspm.model <- function(data, strucmod, measuremod)
 
-  
+latent <- unique(as.vector(strucmodel))
+manifest <-sort(setdiff(as.vector(measuremodel),latent))
+
+# Initialize Outer Weight
+Init<- function(model){
+  measuremod <- measuremodel
+  latent <- latent
+  mf <- manifest
+  M <- matrix(0, ncol=length(latent), nrow= length(mf))
+  colnames(M) <- latent
+  rownames(M) <- mf
+  for(i in 1: nrow(measuremod)){
+    if (measuremod[i,1] %in% mf)
+      M[which(mf==measuremod[i,1]), which(latent ==measuremod[i,2])] <-1
+    if(measuremod[i,2] %in% mf)
+      M[which(mf==measuremod[i,2]), which(latent ==measuremod[i,1])] <-1
+  }
+  return(M)
+}
+#Initialize Inner Weights
+
+InnerW <- function(structuremodel) {
+  latent <- latent
+  Innermatrix <- matrix(0, ncol=length(latent), nrow=length(latent))
+  colnames(Innermatrix) <-latent
+  rownames(Innermatrix) <-latent
+  for(i in 1:nrow(strucmodel)) {
+    Innermatrix[which(latent==strucmodel[i,1]), which(latent==strucmodel[i,2])] <-1
+  }
+  return(Innermatrix)
+}
+
+
+result <- list()
+result$latent <- latent
+result$manifest <- manifest
+result$strucmod <- strucmodel
+result$measuremod <- measuremodel
+# TODO Result$blocks has to be added 
+result$InnerMatrix <- InnerW()
+result$OuterMatrix <-Init(model=Result)
+return(result)
+
