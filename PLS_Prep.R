@@ -1,8 +1,8 @@
 PLS_Prep<-function(data,strucmodel,measuremodel){
+
   latent <<- unique(as.vector(strucmodel))
   manifest <<-sort(setdiff(as.vector(measuremodel),latent))
   
-
   source("PLS_Prep.R")
   block <- block(latent, manifest, measuremodel) 
   InnerW(strucmodel)
@@ -45,6 +45,11 @@ InnerW <- function(strucmodel) {
 
 
 #create Blocks
+
+#block <- resulfunction(latent, manifest, measuremodel) {
+#  ln<-length(latent)
+
+
 # block <- function(latent, manifest, measuremodel) {
 #   ln<-length(latent)
 #   colnames(measuremodel) <- NULL

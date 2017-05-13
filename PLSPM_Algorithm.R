@@ -1,4 +1,5 @@
 PLSPM <- function(data){
+
   # Handle missing data   
   # TODO: EVERYTHING IS REMOVED RIGHT NOW, MIGHT WANT TO CALCULATE MISSING VALUES
   data <- data[,result$manifest]
@@ -12,9 +13,10 @@ PLSPM <- function(data){
   data <- data[,result$manifest]
   data <- as.data.frame(scale(data))
 
+data1 = data[2:25]
+data1 = as.data.frame(scale(data1))
 
-#Check by colMeans(data1,na.rm= TRUE)
-      #diag(var(data1, na.rm= TRUE))
+
 
 ###Step1 Initialization
   M = as.matrix(result$OuterMatrix); M
