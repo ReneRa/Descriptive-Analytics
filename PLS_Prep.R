@@ -1,8 +1,8 @@
 PLS_Prep<-function(data,strucmodel,measuremodel){
-  latent <- unique(as.vector(strucmodel))
-  manifest <-sort(setdiff(as.vector(measuremodel),latent))
+  latent <<- unique(as.vector(strucmodel))
+  manifest <<-sort(setdiff(as.vector(measuremodel),latent))
   
-  source("Test.R")
+  source("PLS_Prep.R")
   block(latent, manifest, measuremodel) 
   InnerW(strucmodel)
   OuterW(latent)
@@ -43,7 +43,7 @@ InnerW <- function(strucmodel) {
 }
 
 #create Blocks
-block <- function(latent, manifest, measuremodel) {
+block <- resulfunction(latent, manifest, measuremodel) {
   ln<-length(latent)
   colnames(measuremodel) <- NULL
   blocks<- list()
