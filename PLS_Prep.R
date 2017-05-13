@@ -1,18 +1,8 @@
 PLS_Prep<-function(data,strucmodel,measuremodel){
-  if(class(data)!="data.frame")
-    stop("The argument ’data’ must be of class ’data.frame’.")
-  
-  if(class(strucmod)!=matrix||ncol(strucmod)!=2||mode(strucmod)!=character){
-    cat("The argument ’strucmod’ must be a two column character matrix.\n")
-    stop("Put structural model in an appropriate two-column matrix format!\n")}
-  
-  if(!is.matrix(measuremod)||ncol(measuremod)!=2){
-    cat("The argument ’measuremod’ must be a two column character matrix.\n")
-    stop("Put measurement model in an appropriate two-column matrix format!\n")}
-    
   latent <<- unique(as.vector(strucmodel))
   manifest <<-sort(setdiff(as.vector(measuremodel),latent))
   
+
   source("PLS_Prep.R")
   block(latent, manifest, measuremodel) 
   InnerW(strucmodel)
