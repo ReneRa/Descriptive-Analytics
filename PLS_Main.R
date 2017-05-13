@@ -14,4 +14,5 @@ PLS_Prep(data,strucmodel,measuremodel)
 
 # PLS Algorithm
 
-source("PLSPM_Algorithm")
+source("PLSPM_Algorithm.R")
+PLSPM(data)

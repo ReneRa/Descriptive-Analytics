@@ -4,7 +4,7 @@ PLS_Prep<-function(data,strucmodel,measuremodel){
   
 
   source("PLS_Prep.R")
-  block(latent, manifest, measuremodel) 
+  block <- block(latent, manifest, measuremodel) 
   InnerW(strucmodel)
   OuterW(latent)
   
