@@ -13,3 +13,4 @@ source("PLS_Prep.R")
 PLS_Prep(data,strucmodel,measuremodel)
 
 # PLS Algorithm
+source("PLSPM_Algorithm")

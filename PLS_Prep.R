@@ -1,6 +1,6 @@
 PLS_Prep<-function(data,strucmodel,measuremodel){
-  latent <- unique(as.vector(strucmodel))
-  manifest <-sort(setdiff(as.vector(measuremodel),latent))
+  latent <<- unique(as.vector(strucmodel))
+  manifest <<-sort(setdiff(as.vector(measuremodel),latent))
   
   source("PLS_Prep.R")
   block(latent, manifest, measuremodel) 
