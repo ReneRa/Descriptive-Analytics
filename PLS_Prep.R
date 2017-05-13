@@ -1,27 +1,8 @@
 PLS_Prep<-function(data,strucmodel,measuremodel){
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> f79cf2485d792d923d54731e6695acc02ee9cf9b
+
   latent <<- unique(as.vector(strucmodel))
   manifest <<-sort(setdiff(as.vector(measuremodel),latent))
   
-=======
-  if(class(data)!="data.frame")
-    stop("The argument ’data’ must be of class ’data.frame’.")
-  
-  if(class(strucmod)!=matrix||ncol(strucmod)!=2||mode(strucmod)!=character){
-    cat("The argument ’strucmod’ must be a two column character matrix.\n")
-    stop("Put structural model in an appropriate two-column matrix format!\n")}
-  
-  if(!is.matrix(measuremod)||ncol(measuremod)!=2){
-    cat("The argument ’measuremod’ must be a two column character matrix.\n")
-    stop("Put measurement model in an appropriate two-column matrix format!\n")}
-    
-  latent <<- unique(as.vector(strucmodel))
-  manifest <<-sort(setdiff(as.vector(measuremodel),latent))
-  
->>>>>>> e636330c39492d0d09a68518d0a43d55dc6b40d5
   source("PLS_Prep.R")
   block(latent, manifest, measuremodel) 
   InnerW(strucmodel)
@@ -64,10 +45,10 @@ InnerW <- function(strucmodel) {
 
 
 #create Blocks
-<<<<<<< HEAD
-block <- resulfunction(latent, manifest, measuremodel) {
-  ln<-length(latent)
-=======
+
+#block <- resulfunction(latent, manifest, measuremodel) {
+#  ln<-length(latent)
+
 # block <- function(latent, manifest, measuremodel) {
 #   ln<-length(latent)
 #   colnames(measuremodel) <- NULL
@@ -93,7 +74,6 @@ block <- resulfunction(latent, manifest, measuremodel) {
 
 block <- function(latent, manifest, measuremodel){
   ln <- length(latent)
->>>>>>> e636330c39492d0d09a68518d0a43d55dc6b40d5
   colnames(measuremodel) <- NULL
   blocks <- list()
   
