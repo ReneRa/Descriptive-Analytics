@@ -42,6 +42,7 @@ InnerW <- function(strucmodel) {
   return(Innermatrix)
 }
 
+'''
 #create Blocks
 block <- function(latent, manifest, measuremodel) {
   ln<-length(latent)
@@ -64,4 +65,29 @@ block <- function(latent, manifest, measuremodel) {
   }
   names(blocks) <- latent
   return(blocks)
+}
+'''
+block <- function(latent, manifest, measuremodel){
+  ln <- length(latent)
+  colnames(measuremodel) <- NULL
+  blocks <- list()
+  
+  
+  for (i in 1:ln){
+    blocks[[i]] <- measuremodel[c(which(measuremodel[,1] == latent[i], which(measuremodel[,2] == latent[i]))),]
+    blocks[[i]] <- append(blocks[[i]], 
+                          measuremodel[c(which(measuremodel[,2] == latent[i], which(measuremodel[,1] == latent[i]))),])
+    blocks[[i]] <- sort(blocks[[i]][blocks[[i]] %in% manifest])
+    
+    
+    # Determine the mode (A=Reflective, B=Formative)
+    if(all(blocks[[i]] %in% measuremodel[,2])){
+      attr(blocks[[i]], "mode") <- "A"
+    } else if(all(blocks[[i]] %in% measuremodel[,1])){
+      attr(blocks[[i]], "mode") <- "B"
+    }
+    else stop("A block must be either formative or reflective. Not both")
+  }
+  return(blocks)
+  
 }
