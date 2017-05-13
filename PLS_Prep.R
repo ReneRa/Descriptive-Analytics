@@ -49,6 +49,7 @@ InnerW <- function(strucmodel) {
 #block <- resulfunction(latent, manifest, measuremodel) {
 #  ln<-length(latent)
 
+
 # block <- function(latent, manifest, measuremodel) {
 #   ln<-length(latent)
 #   colnames(measuremodel) <- NULL
