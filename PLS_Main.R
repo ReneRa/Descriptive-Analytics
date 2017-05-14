@@ -15,4 +15,4 @@ PLS_Prep(data,strucmodel,measuremodel)
 # PLS Algorithm
 
 source("PLSPM_Algorithm.R")
-PLSPM(data)
+finalResult = PLSPM(data, 1e-7)

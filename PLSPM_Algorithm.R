@@ -1,4 +1,4 @@
-PLSPM <- function(data){
+PLSPM <- function(data, treshold){
 
   # Handle missing data   
   # TODO: EVERYTHING IS REMOVED RIGHT NOW, MIGHT WANT TO CALCULATE MISSING VALUES
@@ -13,30 +13,74 @@ PLSPM <- function(data){
   data <- data[,result$manifest]
   data <- as.data.frame(scale(data))
 
-data1 = data[2:25]
-data1 = as.data.frame(scale(data1))
-
-
 
 ###Step1 Initialization
   M = as.matrix(result$OuterMatrix); M
-  initialLV <- as.matrix(data) %*% M
-
-
-###Step2 Inner Approximation
-  R = cor(initialLV)
-  D = as.data.frame(result$InnerMatrix)
-  C = D + t(D)
+  LVScores <- as.matrix(data) %*% M
+  innerWeights = NULL
+  firstIteration = TRUE
+  it = 0
+  while(TRUE){
+    it = it + 1
+    ###Step2 Inner Approximation
+    R = cor(LVScores)
+    D = as.data.frame(result$InnerMatrix)
+    C = D + t(D)
+    
+    E  <- matrix(0, ncol=length(latent), nrow= length(latent))
+    colnames(E) <- colnames(C)
+    rownames(E) <- rownames(C)
+    E <- factorial(E, R, C)
+    
+    innerLV <- scale(LVScores %*% E)
+    
+    ###Step3 
+    if(!is.null(innerWeights)){
+      oldWeights = innerWeights
+    }
+    innerWeights <- t(cor(innerLV, data))
+    
+    #Set non adjacent LV's to 0
+    for(col in 1:ncol(innerWeights)){
+      for(row in 1:nrow(innerWeights)){
+        if(result$OuterMatrix[row, col] == 0){
+          innerWeights[row,col] = 0
+        }
+      }
+    }
+    
+    ###Step4
+    LVScores = as.matrix(data) %*% innerWeights
+    
+    ###Step5
+    difference = 0
+    
+    if(firstIteration == FALSE){
+    
+      # Calculate the difference between the old and the new weights
+      for(row in 1:nrow(innerWeights)){
+        for(col in 1:ncol(innerWeights)){
+          if(innerWeights[row, col] != 0){
+            difference = difference + ((oldWeights[row, col] - innerWeights[row, col]) / innerWeights[row,col])
+          }
+        }
+      }
+    
+      if (abs(difference) < treshold){
+        break
+      }
+    }
+    
+    if(firstIteration == TRUE){
+      firstIteration = FALSE
+    }
+  }
   
-  E  <- matrix(0, ncol=length(latent), nrow= length(latent))
-  colnames(E) <- colnames(C)
-  rownames(E) <- rownames(C)
-  E <- factorial(E, R, C)
-  
-  innerLV <- scale(initialLV %*% E)
-  
+  result = list()
+  result$LVScores = LVScores
+  result$weights = innerWeights
+  return(result$weights)
 }
-
 
 factorial <- function(E, R, C){
   for(i in 1: ncol(C)){
