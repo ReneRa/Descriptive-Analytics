@@ -79,7 +79,7 @@ PLSPM <- function(data, treshold){
   result = list()
   result$LVScores = LVScores
   result$weights = innerWeights
-  return(result$weights)
+  return(result)
 }
 
 factorial <- function(E, R, C){
