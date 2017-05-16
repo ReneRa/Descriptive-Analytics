@@ -33,7 +33,7 @@ PLSPM <- function(data, treshold){
     rownames(E) <- rownames(C)
     E <- factorial(E, R, C)                   
     
-    innerLV <- LVScores %*% E       #scale(LVScores %*% E)
+    innerLV <- scale(LVScores %*% E)       #scale(LVScores %*% E)
     
     
     #library(sem)                            #factorial weighting scheme
@@ -43,22 +43,33 @@ PLSPM <- function(data, treshold){
     #return(innerW)
     
     
-    
-    
-    ###Step3 
     if(!is.null(innerWeights)){
       oldWeights = innerWeights
     }
-    innerWeights <- t(cor(innerLV, data))
     
-    #Set non adjacent LV's to 0
-    for(col in 1:ncol(innerWeights)){
-      for(row in 1:nrow(innerWeights)){
-        if(result$OuterMatrix[row, col] == 0){
-          innerWeights[row,col] = 0
-        }
-      }
+    ###Step3
+    innerWeights <- result$OuterMatrix
+    for (i in result$latent){
+      if(length(result$blocks[[i]])==1) next
+      latentSubset <- as.matrix(subset(data, select=result$blocks[[i]]))
+      latentScores <- as.matrix(LVScores[,i])
+      
+      # the same for mode "A" and "B"
+      innerWeights[result$blocks[[i]],i] <- cor(latentScores, latentSubset)
     }
+    
+    innerWeights <- apply(innerWeights, 2, sum1)
+    
+    # innerWeights <- t(cor(innerLV, data))
+    # 
+    # #Set non adjacent LV's to 0
+    # for(col in 1:ncol(innerWeights)){
+    #   for(row in 1:nrow(innerWeights)){
+    #     if(result$OuterMatrix[row, col] == 0){
+    #       innerWeights[row,col] = 0
+    #     }
+    #   }
+    # }
     
     ###Step4
     
@@ -80,6 +91,7 @@ PLSPM <- function(data, treshold){
       }
     
       if (abs(difference) < treshold){
+        print(it)
         break
       }
     }
@@ -92,7 +104,7 @@ PLSPM <- function(data, treshold){
   result = list()
   result$LVScores = LVScores
   result$weights = innerWeights
-  return(result)
+  return(result$weights)
 }
 
 factorial <- function(E, R, C){
@@ -109,3 +121,5 @@ factorial <- function(E, R, C){
   return(E)
 }
 
+sum1 <-
+  function(x){x <- x/sum(x)}
