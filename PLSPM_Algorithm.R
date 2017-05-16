@@ -15,8 +15,9 @@ PLSPM <- function(data, treshold){
 
 
 ###Step1 Initialization
-  M = as.matrix(result$OuterMatrix); M
+  M = as.matrix(result$OuterMatrix); 
   LVScores <- as.matrix(data) %*% M
+  LVScores <- scale(LVScores)                   # Why did we not scale previously?
   innerWeights = NULL
   firstIteration = TRUE
   it = 0
@@ -30,9 +31,19 @@ PLSPM <- function(data, treshold){
     E  <- matrix(0, ncol=length(latent), nrow= length(latent))
     colnames(E) <- colnames(C)
     rownames(E) <- rownames(C)
-    E <- factorial(E, R, C)
+    E <- factorial(E, R, C)                   
     
-    innerLV <- scale(LVScores %*% E)
+    innerLV <- LVScores %*% E       #scale(LVScores %*% E)
+    
+    
+    #library(sem)                            #factorial weighting scheme
+    #C[C==1] <- cor(fscores, use="everything", method="pearson")[C == 1]
+    #innerW <- C
+    #innerW[C == 1] <- cor(fscores, use="everything", method="pearson")[C == 1]
+    #return(innerW)
+    
+    
+    
     
     ###Step3 
     if(!is.null(innerWeights)){
@@ -50,7 +61,9 @@ PLSPM <- function(data, treshold){
     }
     
     ###Step4
-    LVScores = as.matrix(data) %*% innerWeights
+    
+    #LVScores = as.matrix(data) %*% OuterW() 
+    LVScores = as.matrix(data) %*% innerWeights  ## Supposed to be Outer Weights????
     
     ###Step5
     difference = 0
@@ -95,3 +108,4 @@ factorial <- function(E, R, C){
   }
   return(E)
 }
+
