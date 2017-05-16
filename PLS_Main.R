@@ -1,5 +1,8 @@
 #Descriptive Analytics Project
 rm(list = ls())
+# Set this value to the desired weighting scheme: Centroid, factorial or path
+weightingScheme = "centroid"
+
 data = read.csv("bank.csv", header=TRUE )
 
 # Manual Input
@@ -9,9 +12,9 @@ measuremodel <<- matrix(c("Image", "IMAG1","Image","IMAG2","Image","IMAG3","Imag
 colnames(strucmodel)<-c("Source","Target")
 
 # PLS Preparation
-source("PLS_Prep.R")#
+source("PLS_Prep.R")
 PLS_Prep(data,strucmodel,measuremodel)
 
 # PLS Algorithm
 source("PLSPM_Algorithm.R")
-finalResult = PLSPM(data, 1e-7)
+finalResult = PLSPM(data, 1e-7, weightingScheme)

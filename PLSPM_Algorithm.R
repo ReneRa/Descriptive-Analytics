@@ -1,4 +1,6 @@
-PLSPM <- function(data, treshold){
+# Returns the final model. Takes data, treshold and method as inputs.
+# Method is the method used to approximate the inner weight matrix E
+PLSPM <- function(data, treshold, method){
 
   # Handle missing data   
   # TODO: EVERYTHING IS REMOVED RIGHT NOW, MIGHT WANT TO CALCULATE MISSING VALUES
@@ -13,89 +15,37 @@ PLSPM <- function(data, treshold){
   data <- data[,result$manifest]
   data <- as.data.frame(scale(data))
 
-
-###Step1 Initialization
-  M = as.matrix(result$OuterMatrix); 
-  LVScores <- as.matrix(data) %*% M
-  LVScores <- scale(LVScores)                   # Why did we not scale previously?
-  innerWeights = NULL
+  #Step1 Initialization
+  LVScores = step1(data)              
+  outerWeights = NULL
   firstIteration = TRUE
-  it = 0
+  numIterations = 0
+  
+  # Iterate until difference between old and new weights is below given treshold.
   while(TRUE){
-    it = it + 1
-    ###Step2 Inner Approximation
-    R = cor(LVScores)
-    D = as.data.frame(result$InnerMatrix)
-    C = D + t(D)
+    numIterations = numIterations + 1
     
-    E  <- matrix(0, ncol=length(latent), nrow= length(latent))
-    colnames(E) <- colnames(C)
-    rownames(E) <- rownames(C)
-    E <- factorial(E, R, C)                   
+    #Step 2
+    innerLV <- step2(LVScores, method)
     
-    innerLV <- scale(LVScores %*% E)       #scale(LVScores %*% E)
-    
-    
-    #library(sem)                            #factorial weighting scheme
-    #C[C==1] <- cor(fscores, use="everything", method="pearson")[C == 1]
-    #innerW <- C
-    #innerW[C == 1] <- cor(fscores, use="everything", method="pearson")[C == 1]
-    #return(innerW)
-    
-    
-    if(!is.null(innerWeights)){
-      oldWeights = innerWeights
+    # Save the old weights to check if the weight difference is below the given treshold later on.
+    if(!is.null(outerWeights)){
+      oldWeights = outerWeights
     }
     
-    ###Step3
-    innerWeights <- result$OuterMatrix
-    for (i in result$latent){
-      if(length(result$blocks[[i]])==1) next
-      latentSubset <- as.matrix(subset(data, select=result$blocks[[i]]))
-      latentScores <- as.matrix(LVScores[,i])
-      
-      # the same for mode "A" and "B"
-      innerWeights[result$blocks[[i]],i] <- cor(latentScores, latentSubset)
-    }
+    # Step 3
+    outerWeights <- step3(data, LVScores)
     
-    innerWeights <- apply(innerWeights, 2, sum1)
+    # Step4
+    LVScores = step4(data, outerWeights)
     
-    # innerWeights <- t(cor(innerLV, data))
-    # 
-    # #Set non adjacent LV's to 0
-    # for(col in 1:ncol(innerWeights)){
-    #   for(row in 1:nrow(innerWeights)){
-    #     if(result$OuterMatrix[row, col] == 0){
-    #       innerWeights[row,col] = 0
-    #     }
-    #   }
-    # }
-    
-    ###Step4
-    
-    #LVScores = as.matrix(data) %*% OuterW() 
-    LVScores = as.matrix(data) %*% innerWeights  ## Supposed to be Outer Weights????
-    
-    ###Step5
-    difference = 0
-    
+    # Algorithm shouldn't converge on first run since the difference can't be calculated
     if(firstIteration == FALSE){
-    
-      # Calculate the difference between the old and the new weights
-      for(row in 1:nrow(innerWeights)){
-        for(col in 1:ncol(innerWeights)){
-          if(innerWeights[row, col] != 0){
-            difference = difference + ((oldWeights[row, col] - innerWeights[row, col]) / innerWeights[row,col])
-          }
-        }
-      }
-    
-      if (abs(difference) < treshold){
-        print(it)
+      if(step5(outerWeights, oldWeights, treshold) == TRUE){
+        print(paste0("Algorithm converged in ", numIterations, " iterations"))
         break
       }
     }
-    
     if(firstIteration == TRUE){
       firstIteration = FALSE
     }
@@ -103,23 +53,75 @@ PLSPM <- function(data, treshold){
   
   result = list()
   result$LVScores = LVScores
-  result$weights = innerWeights
+  result$weights = outerWeights
   return(result$weights)
 }
 
-factorial <- function(E, R, C){
-  for(i in 1: ncol(C)){
-    for(j in 1: nrow(C)){
-      if(C[i, j] == 1){
-        E[i,j] = R[i,j]
-      }
-      else {
-        0
+
+# Step 1: Initializing the latent factor scores
+step1 <- function(data){
+  M = as.matrix(result$OuterMatrix); 
+  LVScores <- as.matrix(data) %*% M
+  return(scale(LVScores))
+}
+
+
+# Step 2: Inner Approximation
+step2 <- function(LVScores, method){
+  R = cor(LVScores)
+  D = as.data.frame(result$InnerMatrix)
+  C = D + t(D)
+  
+  E  <- matrix(0, ncol=length(latent), nrow= length(latent))
+  colnames(E) <- colnames(C)
+  rownames(E) <- rownames(C)
+  
+  source("Weighting_Schemes.R")
+  if(method=="centroid"){E <- centroid(E, R, C)}
+  else if(method=="factorial"){E <- factorial(E, R, C)}  
+  
+  innerLV <- scale(LVScores %*% E)       #scale(LVScores %*% E)
+}
+
+
+# Step 3: Outer Approximation
+step3 <- function(data, LVScores){
+  outerWeights <- result$OuterMatrix
+  for (i in result$latent){
+    latentSubset <- as.matrix(subset(data, select=result$blocks[[i]]))
+    latentScores <- as.matrix(LVScores[,i])
+    
+    outerWeights[result$blocks[[i]],i] <- cov(latentScores, latentSubset)
+  }
+  
+  return(apply(outerWeights, 2, sumMatrixto1))
+}
+
+
+# Step 4: Outer Estimation of factor scores
+step4 <- function(data, outerWeights){
+  return(as.matrix(data) %*% outerWeights) 
+}
+
+
+# Step 5: Check for convergence. Returns TRUE if algorithm should converge and FALSE otherwise
+step5 <- function(outerWeights, oldWeights, treshold){
+  difference = 0
+  
+  # Calculate the difference between the old and the new weights
+  for(row in 1:nrow(outerWeights)){
+    for(col in 1:ncol(outerWeights)){
+      if(outerWeights[row, col] != 0){
+        difference = difference + ((oldWeights[row, col] - outerWeights[row, col]) / outerWeights[row,col])
       }
     }
   }
-  return(E)
+  
+  # If the difference is below the given treshold, the algorithm should terminate
+  if (abs(difference) < treshold){return(TRUE)}
+  else{return(FALSE)}
 }
 
-sum1 <-
+# Recalculates elements in a column so that all values in that column sum to 1
+sumMatrixto1 <-
   function(x){x <- x/sum(x)}
