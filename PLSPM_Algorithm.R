@@ -26,7 +26,7 @@ PLSPM <- function(data, treshold, method){
     numIterations = numIterations + 1
     
     #Step 2
-    innerLV <- step2(LVScores, method)
+    LVScores <- step2(LVScores, method)
     
     # Save the old weights to check if the weight difference is below the given treshold later on.
     if(!is.null(outerWeights)){
@@ -39,6 +39,9 @@ PLSPM <- function(data, treshold, method){
     # Step4
     LVScores = step4(data, outerWeights)
     
+    sd <-rep(attr(LVScores, "scaled:scale"), each=length(result$manifest))
+    outerWeights = outerWeights / sd
+    print(head(outerWeights))
     # Algorithm shouldn't converge on first run since the difference can't be calculated
     if(firstIteration == FALSE){
       if(step5(outerWeights, oldWeights, treshold) == TRUE){
@@ -51,10 +54,16 @@ PLSPM <- function(data, treshold, method){
     }
   }
   
+  crossLoadings = cor(data, LVScores)
+  outerLoadings = as.matrix(result$OuterMatrix) * as.matrix(crossLoadings)
+  
   result = list()
   result$LVScores = LVScores
-  result$weights = outerWeights
-  return(result$weights)
+  result$outerWeights = outerWeights
+  result$crossLoadings = crossLoadings
+  result$outerLoadings = outerLoadings
+  
+  return(result)
 }
 
 
@@ -91,16 +100,30 @@ step3 <- function(data, LVScores){
     latentSubset <- as.matrix(subset(data, select=result$blocks[[i]]))
     latentScores <- as.matrix(LVScores[,i])
     
-    outerWeights[result$blocks[[i]],i] <- cov(latentScores, latentSubset)
+    outerWeights[result$blocks[[i]],i] <- cor(latentScores, latentSubset)
   }
   
-  return(apply(outerWeights, 2, sumMatrixto1))
+  return(outerWeights)
+
+  #return(apply(outerWeights, 2, sumMatrixto1))
 }
 
 
-# Step 4: Outer Estimation of factor scores
+# # Step 4: Outer Estimation of factor scores
+# step4 <- function(data, outerWeights){
+#   return(as.matrix(data) %*% outerWeights) 
+# }
+
 step4 <- function(data, outerWeights){
-  return(as.matrix(data) %*% outerWeights) 
+  blocks = result$blocks
+  Latent <- matrix(NA, nrow=nrow(data), ncol=length(result$latent)) # factor scores
+  colnames(Latent) <- result$latent
+  for(i in result$latent){
+    mf <- as.matrix(data[ , blocks[[i]] ])
+    #Latent[,i] <- mf %*% as.matrix(outerW[blocks[[i]], i])
+    Latent[,i] <- mf %*% outerWeights[blocks[[i]], i, drop=FALSE]
+  }
+  Latent <- scale(Latent)
 }
 
 
