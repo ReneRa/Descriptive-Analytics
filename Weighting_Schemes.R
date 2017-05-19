@@ -27,3 +27,8 @@ factorial <- function(E, R, C){
   }
   return(E)
 }
+
+# Returns the inner weight matrix E using the path weighting scheme
+path <- function(E, R, C){
+
+  }

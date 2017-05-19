@@ -7,6 +7,7 @@ PLS_Prep<-function(data,strucmodel,measuremodel){
   block <- block(latent, manifest, measuremodel) 
   InnerW(strucmodel)
   OuterW(latent)
+  innerMatrix <- InnerW(strucmodel)
   
   result <<- list()
   result$latent <<- latent
