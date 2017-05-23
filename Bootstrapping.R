@@ -18,9 +18,13 @@ for(i in 1:k) {
   sublist[[i]] <- finalResult$outerWeights
 }
 
-for (i in 1:#nicht k, sondern anzahl an Ausprägungen) {
-  #
-  
+BootstrappingCoefficients<- data.frame()
+for (i in 1:k) {
+  for (j in 1:24)  { #has to be adjusted to variable
+   df <- as.data.frame(sublist[i])
+   BootstrappingCoefficients <- rbind(BootstrappingCoefficients,df$Image[1])
+   BootstrappingCoefficients <- as.data.frame(BootstrappingCoefficients)
+}
 }
   
   
