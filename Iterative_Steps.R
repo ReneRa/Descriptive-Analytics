@@ -19,7 +19,8 @@ step2 <- function(LVScores, method){
   source("Weighting_Schemes.R")
   if(method=="centroid"){E <- centroid(E, R, C)}
   else if(method=="factorial"){E <- factorial(E, R, C)}  
-  
+  else if(method=="path"){E <- path(LVScores)}
+  print(E)
   innerLV <- scale(LVScores %*% E)       #scale(LVScores %*% E)
 }
 

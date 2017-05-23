@@ -42,7 +42,7 @@ PLSPM <- function(data, treshold, method){
     
     sd <-rep(attr(LVScores, "scaled:scale"), each=length(result$manifest))
     outerWeights = outerWeights / sd
-    print(head(outerWeights))
+    
     # Algorithm shouldn't converge on first run since the difference can't be calculated
     if(firstIteration == FALSE){
       if(step5(outerWeights, oldWeights, treshold) == TRUE){
