@@ -18,3 +18,7 @@ PLS_Prep(data,strucmodel,measuremodel)
 # PLS Algorithm
 source("PLSPM_Algorithm.R")
 finalResult = PLSPM(data, 1e-7, weightingScheme)
+
+# Path Coefficient
+source("PathCoefficients.R")
+pathCoefficients = getPCs()
