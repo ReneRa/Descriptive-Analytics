@@ -63,8 +63,29 @@ PLSPM <- function(data, treshold, method){
   result$outerWeights = outerWeights
   result$crossLoadings = crossLoadings
   result$outerLoadings = outerLoadings
+  result$pathCoefficients = getPCs(LVScores)
   
   return(result)
+}
+
+getPCs<- function(LVScores){
+  
+  predecessors = getPredecessors()
+  latent = result$latent
+  pathCoef = matrix(0, nrow = length(latent), ncol = length(latent))
+  rownames(pathCoef) = latent
+  colnames(pathCoef) = latent
+
+  for (i in latent){
+    # Check if current LV has predecessor
+    currentPredecessors = predecessors[[i]]
+    if (length(currentPredecessors) != 0){
+      predLVScores = LVScores[,currentPredecessors]
+      pathCoef[currentPredecessors, i] = solve(cor(LVScores[,currentPredecessors, drop=FALSE]), cor(LVScores[,currentPredecessors], LVScores[,i]))
+    }
+  }
+ return(pathCoef)
+  
 }
 
 # Returns a list with Latents and their predecessors

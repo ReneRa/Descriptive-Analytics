@@ -18,3 +18,6 @@ getPCs<- function(){
   }
   return(pathCoef)
 }
+
+
+

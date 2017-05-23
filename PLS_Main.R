@@ -1,7 +1,7 @@
 #Descriptive Analytics Project
 rm(list = ls())
 # Set this value to the desired weighting scheme: Centroid, factorial or path
-weightingScheme = "path"
+weightingScheme = "centroid"
 
 data = read.csv("bank.csv", header=TRUE )
 
