@@ -2,6 +2,8 @@
 rm(list = ls())
 # Set this value to the desired weighting scheme: Centroid, factorial or path
 weightingScheme = "centroid"
+bootstrapp = FALSE
+k= 100
 
 data = read.csv("bank.csv", header=TRUE )
 
@@ -15,10 +17,12 @@ colnames(strucmodel)<-c("Source","Target")
 source("PLS_Prep.R")
 PLS_Prep(data,strucmodel,measuremodel)
 
+if(bootstrapp == TRUE) {
+  # Bootstrapping with k subsets
+  source("Bootstrapping.R")
+  Bootstrapping(data, k)
+} else {
 # PLS Algorithm
 source("PLSPM_Algorithm.R")
 finalResult = PLSPM(data, 1e-7, weightingScheme)
-
-# Path Coefficient
-source("PathCoefficients.R")
-pathCoefficients = getPCs()
+}
