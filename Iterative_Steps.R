@@ -32,7 +32,15 @@ step3 <- function(data, LVScores){
     latentSubset <- as.matrix(subset(data, select=result$blocks[[i]]))
     latentScores <- as.matrix(LVScores[,i])
     
-    outerWeights[result$blocks[[i]],i] <- cor(latentScores, latentSubset)
+    if (attr(blocks[[i]], "mode")== "A"){
+      outerWeights[result$blocks[[i]],i] <- cor(latentScores, latentSubset)
+    }
+    
+    if (attr(blocks[[i]], "mode") == "B") {
+        outerWeights[result$blocks[[i]],i] <- solve(var(latentSubset)) %*% cor(latentSubset, latentScores)
+      }
+    
+    
   }
   
   return(outerWeights)

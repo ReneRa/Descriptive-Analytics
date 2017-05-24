@@ -27,5 +27,3 @@ if(bootstrapping == TRUE) {
 source("PLSPM_Algorithm.R")
 finalResult = PLSPM(data, 1e-7, weightingScheme)
 }
-
-
