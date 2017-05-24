@@ -57,34 +57,62 @@ PLSPM <- function(data, treshold, method){
   
   crossLoadings = cor(data, LVScores)
   outerLoadings = as.matrix(result$OuterMatrix) * as.matrix(crossLoadings)
+  pathCoefficients = getPCs(LVScores)
   
   result = list()
   result$LVScores = LVScores
   result$outerWeights = outerWeights
   result$crossLoadings = crossLoadings
   result$outerLoadings = outerLoadings
-  result$pathCoefficients = getPCs(LVScores)
+  result$pathCoefficients = pathCoefficients
+  result$totalEffects = getTotalEffects(pathCoefficients)
   
   return(result)
 }
+
+getTotalEffects <- function(pathCoefficients){
+  multipPathCoefficients = pathCoefficients
+  effects = pathCoefficients
+  for(i in 0:length(latent)){
+    multipPathCoefficients <- multipPathCoefficients %*% pathCoefficients
+    effects <- multipPathCoefficients + effects
+  }
+  return(effects)
+}
+
+# getTotalEffects <- function(pathCoefficients){
+#   latent = result$latent
+#   effects = matrix(0, nrow=length(latent), ncol = length(latent))
+#   rownames(pathCoefficients) = latent
+#   colnames(pathCoefficients) = latent
+#   g = pathCoefficients
+#   t = pathCoefficients
+#   for(i in 1:length(latent)){
+#     g <- g %*% pathCoefficients
+#     t <- g + t
+#   }
+#   
+#   return(t)
+# }
 
 getPCs<- function(LVScores){
   
   predecessors = getPredecessors()
   latent = result$latent
-  pathCoef = matrix(0, nrow = length(latent), ncol = length(latent))
-  rownames(pathCoef) = latent
-  colnames(pathCoef) = latent
+  pathCoefficients = matrix(0, nrow = length(latent), ncol = length(latent))
+  rownames(pathCoefficients) = latent
+  colnames(pathCoefficients) = latent
 
   for (i in latent){
     # Check if current LV has predecessor
     currentPredecessors = predecessors[[i]]
     if (length(currentPredecessors) != 0){
+      # Calculate path coefficients for selected LV and it's predecessors
       predLVScores = LVScores[,currentPredecessors]
-      pathCoef[currentPredecessors, i] = solve(cor(LVScores[,currentPredecessors, drop=FALSE]), cor(LVScores[,currentPredecessors], LVScores[,i]))
+      pathCoefficients[currentPredecessors, i] = solve(cor(LVScores[,currentPredecessors, drop=FALSE]), cor(LVScores[,currentPredecessors], LVScores[,i]))
     }
   }
- return(pathCoef)
+ return(pathCoefficients)
   
 }
 
