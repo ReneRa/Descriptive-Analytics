@@ -27,6 +27,7 @@ step2 <- function(LVScores, method){
 
 # Step 3: Outer Approximation
 step3 <- function(data, LVScores){
+  blocks <- result$blocks
   outerWeights <- result$OuterMatrix
   for (i in result$latent){
     latentSubset <- as.matrix(subset(data, select=result$blocks[[i]]))
