@@ -63,6 +63,7 @@ PLSPM <- function(data, treshold, method){
   result$LVScores = LVScores
   result$outerWeights = outerWeights
   result$crossLoadings = crossLoadings
+  result$discrimantLoadings = getDiscriminantLoadings(crossLoadings)
   result$outerLoadings = outerLoadings
   result$pathCoefficients = pathCoefficients
   result$totalEffects = getTotalEffects(pathCoefficients)
@@ -79,21 +80,6 @@ getTotalEffects <- function(pathCoefficients){
   }
   return(effects)
 }
-
-# getTotalEffects <- function(pathCoefficients){
-#   latent = result$latent
-#   effects = matrix(0, nrow=length(latent), ncol = length(latent))
-#   rownames(pathCoefficients) = latent
-#   colnames(pathCoefficients) = latent
-#   g = pathCoefficients
-#   t = pathCoefficients
-#   for(i in 1:length(latent)){
-#     g <- g %*% pathCoefficients
-#     t <- g + t
-#   }
-#   
-#   return(t)
-# }
 
 getPCs<- function(LVScores){
   
@@ -128,3 +114,16 @@ getPredecessors <- function(){
 # Recalculates elements in a column so that all values in that column sum to 1
 sumMatrixto1 <-
   function(x){x <- x/sum(x)}
+
+getDiscriminantLoadings <- function(crossLoadings){
+  discriminantLoadings = crossLoadings
+  for (row in 1:nrow(crossLoadings)){
+    rowMax = max(crossLoadings[row,])
+    for (col in 1:ncol(crossLoadings)){
+      if (discriminantLoadings[row, col] <= rowMax*0.8){
+        discriminantLoadings[row, col] = 0.0
+      }
+    }
+  }
+  return(discriminantLoadings)
+}
