@@ -80,3 +80,49 @@ avgRedundancy = t(avgIndex(redundancy))
 #by the construct and is described as the variance extracted from the item
 
 
+#Dillon-Goldstein's Rho
+DillonRho <- function(){
+RhoScores <- list()
+blocks <- result$blocks
+Loadings <- finalResult$outerLoadings
+for(i in 1:length(blocks)) {
+  MV <- as.data.frame(Loadings[,i])
+  MVs <- as.data.frame(MV[!apply(MV == "0", 1, all),])
+  Rho = sum(MVs)^2/(sum(MVs)^2 +sum(1-MVs^2))
+  RhoScores[[i]] <- Rho
+}
+names(RhoScores) <- paste(result$latent,  sep = "") 
+print(RhoScores)
+}
+DillonRho()
+#Crombachs Alpha
+#assumes that all indicators are equally reliable
+#Cronbach's alpha is sensitive to the number of items in the scale and
+#generally tends to underestimate the internal consistency reliability
+
+CrombachsAlpha <- function(){
+  
+  # Remove missing values if there are any
+  if(length(missings) != 0){
+    data <- na.omit(data)
+  }
+  data <- data[,result$manifest]
+  data <- as.data.frame(scale(data))
+  #Split data into blocks
+  BlockValues = list()
+  for (i in result$latent){
+    latentSubset <- as.matrix(subset(data, select=result$blocks[[i]]))
+    BlockValues[[i]] = latentSubset
+  }
+  #Calculate CrombachsAlpha
+  alphaScores<- list()
+  for (i in 1:length(result$latent)) {
+    curBlock <- as.data.frame(BlockValues[i])
+    p <- ncol(curBlock)
+    alpha = (p/(p-1)) * (1- sum(apply(curBlock,2,var))/sum(var(curBlock)))
+    alphaScores[[i]] <- alpha
+  }
+  names(alphaScores) <- paste(result$latent,  sep = "") 
+  alphaScores
+}
+CrombachsAlpha()
