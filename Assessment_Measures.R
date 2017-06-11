@@ -94,7 +94,6 @@ for(i in 1:length(blocks)) {
 names(RhoScores) <- paste(result$latent,  sep = "") 
 print(RhoScores)
 }
-DillonRho()
 #Crombachs Alpha
 #assumes that all indicators are equally reliable
 #Cronbach's alpha is sensitive to the number of items in the scale and
@@ -103,6 +102,8 @@ DillonRho()
 CrombachsAlpha <- function(){
   
   # Remove missing values if there are any
+  data <- data[,result$manifest]
+  missings <- which(complete.cases(data) == FALSE)
   if(length(missings) != 0){
     data <- na.omit(data)
   }
@@ -125,4 +126,3 @@ CrombachsAlpha <- function(){
   names(alphaScores) <- paste(result$latent,  sep = "") 
   alphaScores
 }
-CrombachsAlpha()
