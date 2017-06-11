@@ -11,17 +11,31 @@ data <- as.data.frame(scale(data))
   discriminantLoadings = finalResult$discrimantLoadings
   outerLoadings = finalResult$outerLoadings
   LVscores = finalResult$LVScores
+  outerMatrix = result$OuterMatrix
   
   #Communality - measures part of the variance that is common between both a latent variable and it's indicator;
   #evaluating how well the indicators are explained by its latent variable.
   #Calculated as the square of the standardized outerLoadings
   #HOWTO: standardize columns: (outerLoadings / colSums(outerLoadings)[col(outerLoadings)])
   communalityIndex <- function(){
+    countMvs = as.data.frame(colSums(outerMatrix != 0));
     communalityIndex = outerLoadings^2
-    avgCommunality = avgIndex(communalityIndex)
+    avgCommunality = as.data.frame(t(avgIndex(communalityIndex)));
+    colnames(avgCommunality) = c("AverageCommunality")
+    avgCommunality$CountMVs = unlist(countMvs)
     return(avgCommunality)
   }
   
+  weightedAvgCommunality <- function(){
+    avgCommunality = communalityIndex()
+    weightedAvgCommunality = matrix(0, ncol=1, nrow=nrow(avgCommunality));
+    rownames(weightedAvgCommunality) = rownames(avgCommunality)
+    for (i in 1:nrow(avgCommunality)){
+      weightedAvgCommunality[i]= avgCommunality[i,1] * (avgCommunality[i,2]/sum(avgCommunality[,2]))
+    }
+    weightedAvgCommunality = sum(weightedAvgCommunality)
+    return(weightedAvgCommunality)
+  }
   
   #rSquared = the amount of variance in the endogenous LV, explained by its independent LVs
   rSquared <- function(){
@@ -58,7 +72,7 @@ data <- as.data.frame(scale(data))
   #Takes into account communality - making it more applicable to reflective indicators, rather than formative
   #Calculated as the geometric of the average communality and the average rSquared value
   GoF = function(){
-    avgCommunality = mean(avgIndex(communalityIndex))
+    avgCommunality = weightedAvgCommunality
     avgrSquare = sum(rSquared)/sum(rowSums(rSquared !=0))
     GOF = sqrt(avgCommunality * avgrSquare)
     
@@ -69,7 +83,6 @@ data <- as.data.frame(scale(data))
    
     return(result)
   }
-  
   
   
   #Redundancy Index - measures amount of variance in an endogenous construct explained by its independent latent variables.
@@ -156,7 +169,7 @@ data <- as.data.frame(scale(data))
   AssessmentMeasure$RSquare <- rSquared
   AssessmentMeasure$CommunalityIndex <- communalityIndex
   AssessmentMeasure$GoodnessOfFit<- GoF()
-  AssessmentMeasure$RedundancyIndexes<-AVE()
+  AssessmentMeasure$AverageVarianceExtracted<-AVE()
   AssessmentMeasure$DillionGoldsteinsRho <-DillonRho()
   AssessmentMeasure$CronbachsAlpha<-CrombachsAlpha()
   AssessmentMeasure$AverageRedundancy <- redundancyIndex()

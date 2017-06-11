@@ -43,8 +43,6 @@ validateFormativeBlocks <- function(){
 
 # Assesment Measures
 source(file = "Assessment_Measures.R")
-communalityIndex()
-rSquared()
-DillonRho()
-CrombachsAlpha()
 
+AssessmentMeasure$RSquare
+AssessmentMeasure$CommunalityIndex
