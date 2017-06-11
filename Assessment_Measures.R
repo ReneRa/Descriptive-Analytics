@@ -72,7 +72,7 @@ data <- as.data.frame(scale(data))
   #Takes into account communality - making it more applicable to reflective indicators, rather than formative
   #Calculated as the geometric of the average communality and the average rSquared value
   GoF = function(){
-    avgCommunality = weightedAvgCommunality
+    avgCommunality = weightedAvgCommunality()
     avgrSquare = sum(rSquared)/sum(rowSums(rSquared !=0))
     GOF = sqrt(avgCommunality * avgrSquare)
     
@@ -167,7 +167,7 @@ data <- as.data.frame(scale(data))
 
   AssessmentMeasure <- list()
   AssessmentMeasure$RSquare <- rSquared
-  AssessmentMeasure$CommunalityIndex <- communalityIndex
+  AssessmentMeasure$CommunalityIndex <- communalityIndex()
   AssessmentMeasure$GoodnessOfFit<- GoF()
   AssessmentMeasure$AverageVarianceExtracted<-AVE()
   AssessmentMeasure$DillionGoldsteinsRho <-DillonRho()
