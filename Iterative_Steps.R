@@ -38,9 +38,10 @@ step3 <- function(data, LVScores){
     }
     
     if (attr(blocks[[i]], "mode") == "B") {
-        outerWeights[result$blocks[[i]],i] <- solve(var(latentSubset)) %*% cor(latentSubset, latentScores)
+      #outerWeights[result$blocks[[i]],i]  <- ((solve(t(latentSubset) %*% latentSubset)) %*% t(latentSubset)) %*% latentScores
+      outerWeights[result$blocks[[i]],i] <- solve(var(latentSubset)) %*% cor(latentSubset, latentScores)
+      
       }
-    
     
   }
   

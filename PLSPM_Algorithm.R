@@ -4,7 +4,6 @@ PLSPM <- function(data, treshold, method){
   source("Iterative_Steps.R")
   
   # Handle missing data   
-  # TODO: EVERYTHING IS REMOVED RIGHT NOW, MIGHT WANT TO CALCULATE MISSING VALUES
   data <- data[,result$manifest]
   N <- nrow(data)
   missings <- which(complete.cases(data) == FALSE)
@@ -127,3 +126,4 @@ getDiscriminantLoadings <- function(crossLoadings){
   }
   return(discriminantLoadings)
 }
+
