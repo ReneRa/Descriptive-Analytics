@@ -46,3 +46,10 @@ source(file = "Assessment_Measures.R")
 
 AssessmentMeasure$RSquare
 AssessmentMeasure$CommunalityIndex
+AssessmentMeasure$RedundancyIndexes
+AssessmentMeasure$AverageRedundancy
+AssessmentMeasure$GoodnessOfFit
+AssessmentMeasure$DillionGoldsteinsRho
+AssessmentMeasure$CronbachsAlpha
+AssessmentMeasure$AverageVarianceExtracted
+
