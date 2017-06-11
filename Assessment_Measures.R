@@ -1,6 +1,5 @@
 #Assessment measures 
-assessmentMeasures = function(){
-  
+
   discriminantLoadings = finalResult$discrimantLoadings
   outerLoadings = finalResult$outerLoadings
   LVscores = finalResult$LVScores
@@ -53,7 +52,13 @@ assessmentMeasures = function(){
     avgCommunality = mean(avgIndex(communalityIndex))
     avgrSquare = sum(rSquared)/sum(rowSums(rSquared !=0))
     GOF = sqrt(avgCommunality * avgrSquare)
-    return(GOF)
+    
+    result = list()
+    result["avgCommunality"] = avgCommunality
+    result["avgrSquare"] = avgrSquare
+    result["GOF"] = GOF
+   
+    return(result)
   }
   
   
@@ -69,21 +74,22 @@ assessmentMeasures = function(){
         redundancy[j,i] = as.matrix((outerLoadings[j,i]^2) * rSquared[,i])
       }
     }
-    return(redundancy)
+    
+    avgRedundancy = t(avgIndex(redundancy))
+    return(avgRedundancy)
   }
   
-  redundancy = redundancyIndex()
-  avgRedundancy = t(avgIndex(redundancy))
+  #redundancy = redundancyIndex()
+  #avgRedundancy = t(avgIndex(redundancy))
   
   #Average Variance Extrcted is the degree to which a latent construct explains the variance of its indicators;
   #The amount of variance that a latent variable captures from its indicators,
   #in relation to the amount of variance due to measurement error.
   #The square of standardized indicator's outer loading represents how much of the variation in an item is explained
   #by the construct and is described as the variance extracted from the item
-  
-  AVE = function(){
-    stdOuterLoadings = stdColValues(outerLoadings)
-    avgVarianceExtracted = stdOuterLoadings^2
+  AVE <- function(){
+    stdOuterLoadings <- stdColValues(outerLoadings)
+    avgVarianceExtracted <- stdOuterLoadings^2
     return(avgVarianceExtracted)
   }
   
@@ -102,8 +108,8 @@ assessmentMeasures = function(){
     Rho = sum(MVs)^2/(sum(MVs)^2 +sum(1-MVs^2))
     RhoScores[[i]] <- Rho
   }
-  names(RhoScores) <- paste(result$latent,  sep = "") 
-  print(RhoScores)
+  names(RhoScores) <- paste(result$latent,  sep = "")
+  return(RhoScores)
   }
   #Crombachs Alpha
   #assumes that all indicators are equally reliable
@@ -134,6 +140,15 @@ assessmentMeasures = function(){
       alphaScores[[i]] <- alpha
     }
     names(alphaScores) <- paste(result$latent,  sep = "") 
-    alphaScores
+    return(alphaScores)
   }
-}
+
+  AssessmentMeasure <- list()
+  AssessmentMeasure$RSquare <- rSquared
+  AssessmentMeasure$CommunalityIndex <- communalityIndex
+  AssessmentMeasure$GoodnessOfFit<- GoF()
+  AssessmentMeasure$AverageVarianceExtracted<-AVE()
+  AssessmentMeasure$DillionGoldsteinsRho <-DillonRho()
+  AssessmentMeasure$CrombachsAlpha<-CrombachsAlpha()
+  AssessmentMeasure$AverageRedundancy <- redundancyIndex()
+

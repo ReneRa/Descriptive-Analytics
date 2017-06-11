@@ -15,7 +15,6 @@ data = read.csv("bank.csv", header=TRUE )
 strucmodel <<- matrix(c("Image","Expectation", "Image","Loyalty","Image","Satisfaction","Expectation","Satisfaction","Expectation","Quality","Expectation","Value","Quality","Value","Quality","Satisfaction","Value","Satisfaction","Satisfaction","Loyalty"),ncol=2, byrow = T)
 colnames(strucmodel)<-c("Source","Target")
 if(formativeBlocks){
-  print("hallootjes")
   measuremodel <<- matrix(c("IMAG1", "Image","IMAG2","Image","IMAG3","Image","IMAG4","Image","IMAG5","Image","EXPE1","Expectation","EXPE2","Expectation","EXPE3","Expectation","QUAL1","Quality","QUAL2","Quality","QUAL3","Quality","QUAL4","Quality","QUAL5","Quality","QUAL6","Quality","QUAL7","Quality","QUAL8","Quality","QUAL9","Quality","VALU1","Value","VALU2","Value","SATI1","Satisfaction","SATI2","Satisfaction","SATI3","Satisfaction","LOYA1","Loyalty","LOYA2","Loyalty"),ncol=2,byrow = T)
 }else
   {
@@ -37,8 +36,15 @@ if(bootstrapping == TRUE) {
 source("PLSPM_Algorithm.R")
 finalResult = PLSPM(data, 1e-7, weightingScheme)
 }
-
 validateFormativeBlocks <- function(){
   semPLSModel <- plsm(data = data, strucmod = strucmodel, measuremod = measuremodel)
   semplsResults <- sempls(semPLSModel, data)
 }
+
+# Assesment Measures
+source(file = "Assessment_Measures.R")
+communalityIndex()
+rSquared()
+DillonRho()
+CrombachsAlpha()
+
