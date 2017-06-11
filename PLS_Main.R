@@ -2,7 +2,7 @@
 rm(list = ls())
 
 # Set to true to let the algorithm run formative blocks instead of reflective blocks.
-formativeBlocks = TRUE
+formativeBlocks = FALSE
 
 # Set this value to the desired weighting scheme: Centroid, factorial or path
 weightingScheme = "centroid"

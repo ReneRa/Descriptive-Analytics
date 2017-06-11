@@ -1,5 +1,13 @@
 #Assessment measures 
 
+missings <- which(complete.cases(data) == FALSE)
+if(length(missings) != 0){
+  data <- na.omit(data)
+}
+data <- data[,result$manifest]
+data <- as.data.frame(scale(data))
+
+
   discriminantLoadings = finalResult$discrimantLoadings
   outerLoadings = finalResult$outerLoadings
   LVscores = finalResult$LVScores
@@ -10,7 +18,8 @@
   #HOWTO: standardize columns: (outerLoadings / colSums(outerLoadings)[col(outerLoadings)])
   communalityIndex <- function(){
     communalityIndex = outerLoadings^2
-    return(communalityIndex)
+    avgCommunality = avgIndex(communalityIndex)
+    return(avgCommunality)
   }
   
   
@@ -147,8 +156,8 @@
   AssessmentMeasure$RSquare <- rSquared
   AssessmentMeasure$CommunalityIndex <- communalityIndex
   AssessmentMeasure$GoodnessOfFit<- GoF()
-  AssessmentMeasure$AverageVarianceExtracted<-AVE()
+  AssessmentMeasure$RedundancyIndexes<-AVE()
   AssessmentMeasure$DillionGoldsteinsRho <-DillonRho()
-  AssessmentMeasure$CrombachsAlpha<-CrombachsAlpha()
+  AssessmentMeasure$CronbachsAlpha<-CrombachsAlpha()
   AssessmentMeasure$AverageRedundancy <- redundancyIndex()
 
